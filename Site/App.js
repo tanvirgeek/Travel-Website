@@ -1,4 +1,5 @@
 var express = require('express');
+var fortune = require('./lib/fortune.js');
 var app = express();
 
 //Set up Handlebar view Engine
@@ -15,21 +16,11 @@ app.get('/',function(req, res){
 	res.render('home');
 })
 
-var fortunes = [
-	"conquer your fears, or they will conquer you",
-	"rivers need springs",
-	"do not fear what you don't know",
-	"you will have a pleasen surprise",
-	"whenever possible keep it simple"
-];
 
 app.get('/about', function(req,res){
-	var random = Math.random();
-	var fortunevalue = random*fortunes.length;
-	console.log(random + '//' + fortunevalue + '//' + Math.floor(fortunevalue ));
-	var randomFortune = fortunes[Math.floor(fortunevalue)];
-	res.render('about', {fortn: randomFortune });
+	res.render('about', { fortn: fortune.getFortune()});
 });
+
 //custom 404 page
 app.use(function(req,res){
 	res.type('text/plain');
