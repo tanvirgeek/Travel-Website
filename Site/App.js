@@ -22,8 +22,29 @@ app.use(function(req, res, next){
 });
 
 app.get('/about', function(req,res){
-	res.render('about', { fortn: fortune.getFortune()});
+	res.render('about', { 
+		fortn: fortune.getFortune(),
+		pageTestScript: '/qa/tests-about.js'
+	});
 });
+
+app.get('/tours/hood-river', function(req,res){
+	res.render('tours/hood-river');
+});
+
+app.get('/tours/request-group-rate', function(req,res){
+	res.render('tours/request-group-rate');
+});
+
+app.get('/headers', function(req,res){
+	res.set('Content-type','text/plain');
+	var s = '';
+	for(var name in req.headers) s+= name + ':' + req.headers[name] + '\n';
+	res.send(s);
+});
+
+app.disable('x-powered-by');
+
 
 //custom 404 page
 app.use(function(req,res){
