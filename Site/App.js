@@ -12,9 +12,7 @@ app.use(express.static(__dirname + '/public'));
 
 app.set('port', process.env.PORT || 3000);
 
-app.get('/',function(req, res){
-	res.render('home');
-})
+
 
 app.use(function(req, res, next){
 	res.locals.showTests = app.get('env') !== 'production' && req.query.test === '1';
@@ -45,6 +43,51 @@ app.get('/headers', function(req,res){
 
 app.disable('x-powered-by');
 
+app.get('/no-layout', function(req,res){
+	res.render('no-layout',{layout: null});
+})
+app.get('/custom-layout', function(req,res){
+	res.render('custom-layout',{layout: 'custom1'});
+});
+
+function getWeatherData(){
+ return {
+ locations: [
+ {
+ name: 'Portland',
+ forecastUrl: 'http://www.wunderground.com/US/OR/Portland.html',
+ iconUrl: 'http://icons-ak.wxug.com/i/c/k/cloudy.gif',
+ weather: 'Overcast',
+ temp: '54.1 F (12.3 C)',
+ },
+ {
+ name: 'Bend',
+ forecastUrl: 'http://www.wunderground.com/US/OR/Bend.html',
+ iconUrl: 'http://icons-ak.wxug.com/i/c/k/partlycloudy.gif',
+ weather: 'Partly Cloudy',
+ temp: '55.0 F (12.8 C)',
+ },
+ {
+ name: 'Manzanita',
+ forecastUrl: 'http://www.wunderground.com/US/OR/Manzanita.html',
+ iconUrl: 'http://icons-ak.wxug.com/i/c/k/rain.gif',
+ weather: 'Light Rain',
+ temp: '55.0 F (12.8 C)',
+ },
+ ],
+ };
+}
+
+app.use(function(req, res, next){
+ if(!res.locals.partials) res.locals.partials = {};
+ res.locals.partials.weather = getWeatherData();
+ console.log(res.locals.partials.weather);
+ next();
+});
+
+app.get('/',function(req, res){
+	res.render('home');
+})
 
 //custom 404 page
 app.use(function(req,res){
