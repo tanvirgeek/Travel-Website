@@ -1,6 +1,8 @@
 var express = require('express');
 var fortune = require('./lib/fortune.js');
 var app = express();
+const bodyParser = require('body-parser');
+var formidable = require('formidable');
 
 //Set up Handlebar view Engine
 var handlebars = require('express3-handlebars').create({defaultLayout: 'main'});
@@ -11,6 +13,11 @@ app.set('view engine','handlebars');
 app.use(express.static(__dirname + '/public'));
 
 app.set('port', process.env.PORT || 3000);
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+ 
+// parse application/json
+app.use(bodyParser.json())
 
 
 
@@ -49,6 +56,43 @@ app.get('/no-layout', function(req,res){
 app.get('/custom-layout', function(req,res){
 	res.render('custom-layout',{layout: 'custom1'});
 });
+app.get('/newsletter', function(req, res){
+ // we will learn about CSRF later...for now, we just
+ // provide a dummy value
+ res.render('newsletter', { csrf: 'CSRF token goes here' });
+});
+app.post('/process', function(req, res){
+ if(req.xhr || req.accepts('json,html')==='json'){
+ // if there were an error, we would send { error: 'error description' }
+ res.send({ success: true });
+ } else {
+ // if there were an error, we would redirect to an error page
+ res.redirect(303, '/thank-you');
+ }
+});
+
+//file upload
+
+app.get('/contest/vacation-photo',function(req,res){
+ var now = new Date();
+ res.render('contest/vacation-photo',{
+ year: now.getFullYear(),month: now.getMonth()
+ });
+});
+app.post('/contest/vacation-photo/:year/:month', function(req, res){
+ var form = new formidable.IncomingForm();
+ form.parse(req, function(err, fields, files){
+ if(err) return res.redirect(303, '/error');
+ console.log('received fields:');
+ console.log(fields);
+ console.log('received files:');
+ console.log(files);
+ res.redirect(303, '/thank-you');
+ });
+});
+
+
+
 
 function getWeatherData(){
  return {
@@ -81,7 +125,7 @@ function getWeatherData(){
 app.use(function(req, res, next){
  if(!res.locals.partials) res.locals.partials = {};
  res.locals.partials.weather = getWeatherData();
- console.log(res.locals.partials.weather);
+ //console.log(res.locals.partials.weather);
  next();
 });
 
@@ -97,7 +141,7 @@ app.use(function(req,res){
 })
 
 //custom 500 page
-app.use(function(err,req,response,next){
+app.use(function(err,req,res,next){
 	console.error(err.stack);
 	res.type('text/plain');
 	res.status(500);
