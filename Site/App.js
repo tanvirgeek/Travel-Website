@@ -3,6 +3,8 @@ var fortune = require('./lib/fortune.js');
 var app = express();
 const bodyParser = require('body-parser');
 var formidable = require('formidable');
+const credentials = require('./credentials.js');
+app.use(require('cookie-parser')(credentials.cookieSecret));
 
 //Set up Handlebar view Engine
 var handlebars = require('express3-handlebars').create({defaultLayout: 'main'});
